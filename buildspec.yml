@@ -14,7 +14,7 @@ phases:
       - echo "Uploading to S3.."
       - aws s3 cp ${ZIPFILE} s3://${S3_BUCKET}/${ZIPFILE}
       - echo "Done."
-      - aws cloudformation deploy --template-file template.yaml --stack-name my-new-stack --parameter-overrides CodeS3Bucket=${S3_BUCKET} CodeS3Key=${ZIPFILE}
+      - aws cloudformation deploy --template-file template.yaml --stack-name my-new-stack --parameter-overrides CodeS3Bucket=${S3_BUCKET} CodeS3Key=${ZIPFILE} --capabilities CAPABILITY_NAMED_IAM
 artifacts:
   type: zip
   files:
