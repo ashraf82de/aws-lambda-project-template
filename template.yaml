@@ -1,0 +1,82 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description:
+
+Parameters:
+  ProjectName:
+    Description: Project name
+    Type: String
+    Default: MyProject
+
+  MyS3BucketName:
+    Description: The Bucket Lambda can use to access or upload data
+    Type: String
+
+Resources:
+
+  MyLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: HelloLambdaFunction
+      Role: !GetAtt MyLambdaRole.Arn
+      Runtime: python3.9
+      Handler: lambda_function.lambda_handler
+      Code:
+        S3Bucket: my-bucket
+        S3Key: function.zip
+
+  MyLambdaUrl:
+    Type: AWS::Lambda::Url
+    Properties:
+      AuthType: NONE
+      TargetFunctionArn:
+        Fn::GetAtt:
+          - MyLambdaFunction
+          - Arn
+
+
+  MyLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: MyLambdaRole
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+
+
+  MyPolicyIAMPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: MyPolicy
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - s3:AbortMultipartUpload
+          - s3:GetBucketLocation
+          - s3:GetObject
+          - s3:ListBucket
+          - s3:ListBucketMultipartUploads
+          - s3:PutObject
+          Resource:
+            Fn::Join:
+            - ''
+            - - 'arn:aws:s3:::'
+              - Ref: MyS3BucketName
+              - '*'
+        - Effect: Allow
+          Action:
+          - kinesis:DescribeStream
+          - kinesis:GetShardIterator
+          - kinesis:GetRecords
+          Resource:
+            Fn::GetAtt:
+            - MyLambdaFunction
+            - Arn
+      Roles:
+      - Ref: MyLambdaRole
+    DependsOn:
+    - MyLambdaFunction
