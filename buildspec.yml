@@ -3,9 +3,17 @@ phases:
   install:
     runtime-versions:
         python: 3.9
+  pre_build:
+    commands:
+      - echo "Get current timestamp for reports naming.."
+      - TIME=$(date +"%Y%m%d_%H%M%S")
   build:
     commands:
-      - sam package --template-file template.yml --s3-bucket bucketname --output-template-file packaged-template.yml
+      - zip -r myBuild_${TIME}.zip .
+      - echo "Uploading to S3.."
+      - aws s3 cp myBuild.zip s3://${S3_BUCKET}/myBuild_${TIME}.zip
+      - echo "Done."
+      - aws cloudformation deploy --template-file template.yaml --stack-name my-new-stack --parameter-overrides CodeS3Bucket=${S3_BUCKET} CodeS3Key=myBuild_${TIME}.zip
 artifacts:
   type: zip
   files:

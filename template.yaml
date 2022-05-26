@@ -7,8 +7,12 @@ Parameters:
     Type: String
     Default: MyProject
 
-  MyS3BucketName:
-    Description: The Bucket Lambda can use to access or upload data
+  CodeS3Bucket:
+    Description: The s3 Bucket name where the code is uploaded
+    Type: String
+
+  CodeS3Key:
+    Description: The code zip file name in s3
     Type: String
 
 Resources:
@@ -21,8 +25,8 @@ Resources:
       Runtime: python3.9
       Handler: lambda_function.lambda_handler
       Code:
-        S3Bucket: my-bucket
-        S3Key: function.zip
+        S3Bucket: !Ref CodeS3Bucket
+        S3Key: !Ref CodeS3Key
 
   MyLambdaUrl:
     Type: AWS::Lambda::Url
@@ -44,39 +48,3 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
             Action: sts:AssumeRole
-
-
-  MyPolicyIAMPolicy:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: MyPolicy
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-        - Effect: Allow
-          Action:
-          - s3:AbortMultipartUpload
-          - s3:GetBucketLocation
-          - s3:GetObject
-          - s3:ListBucket
-          - s3:ListBucketMultipartUploads
-          - s3:PutObject
-          Resource:
-            Fn::Join:
-            - ''
-            - - 'arn:aws:s3:::'
-              - Ref: MyS3BucketName
-              - '*'
-        - Effect: Allow
-          Action:
-          - kinesis:DescribeStream
-          - kinesis:GetShardIterator
-          - kinesis:GetRecords
-          Resource:
-            Fn::GetAtt:
-            - MyLambdaFunction
-            - Arn
-      Roles:
-      - Ref: MyLambdaRole
-    DependsOn:
-    - MyLambdaFunction
