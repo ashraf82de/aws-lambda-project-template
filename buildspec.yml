@@ -7,13 +7,14 @@ phases:
     commands:
       - echo "Get current timestamp for reports naming.."
       - TIME=$(date +"%Y%m%d_%H%M%S")
+      - ZIPFILE=myBuild_${TIME}.zip
   build:
     commands:
-      - zip -r myBuild_${TIME}.zip .
+      - zip -r ${ZIPFILE} .
       - echo "Uploading to S3.."
-      - aws s3 cp myBuild.zip s3://${S3_BUCKET}/myBuild_${TIME}.zip
+      - aws s3 cp ${ZIPFILE} s3://${S3_BUCKET}/${ZIPFILE}
       - echo "Done."
-      - aws cloudformation deploy --template-file template.yaml --stack-name my-new-stack --parameter-overrides CodeS3Bucket=${S3_BUCKET} CodeS3Key=myBuild_${TIME}.zip
+      - aws cloudformation deploy --template-file template.yaml --stack-name my-new-stack --parameter-overrides CodeS3Bucket=${S3_BUCKET} CodeS3Key=${ZIPFILE}
 artifacts:
   type: zip
   files:
