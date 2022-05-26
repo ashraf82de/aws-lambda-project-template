@@ -2,11 +2,6 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: Cloudformation template to create a simple lambda function
 
 Parameters:
-  ProjectName:
-    Description: Project name
-    Type: String
-    Default: MyProject
-
   CodeS3Bucket:
     Description: The s3 Bucket name where the code is uploaded
     Type: String
