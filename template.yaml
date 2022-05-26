@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description:
+Description: Cloudformation template to create a simple lambda function
 
 Parameters:
   ProjectName:
