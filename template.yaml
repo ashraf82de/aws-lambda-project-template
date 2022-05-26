@@ -37,6 +37,13 @@ Resources:
           - MyLambdaFunction
           - Arn
 
+  permissionForURLInvoke:
+     Type: AWS::Lambda::Permission
+     Properties:
+       FunctionName: !Ref MyLambdaFunction
+       FunctionUrlAuthType: 'NONE'
+       Action: lambda:InvokeFunctionUrl
+       Principal: '*'
 
   MyLambdaRole:
     Type: AWS::IAM::Role
@@ -52,4 +59,4 @@ Resources:
 Outputs:
   MyFunctionUrl:
     Description: The URL
-    Value: !GetAtt MyLambdaUrl.FunctionArn
+    Value: !GetAtt MyLambdaUrl.FunctionUrl
